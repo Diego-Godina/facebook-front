@@ -1,0 +1,51 @@
+body {
+    background-color: #f0f2f5;
+    overflow-x: hidden;
+    font-family: Arial, sans-serif;
+}
+
+.user-card, .add-card {
+    width: 140px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: white;
+}
+
+.user-card img {
+    height: 160px;
+    object-fit: cover;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.add-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.facebook-logo {
+    height: 60px;
+    margin-bottom: 20px;
+}
+
+.login-card {
+    border-radius: 8px;
+}
+.newAcc{
+    background-color: #42b72a;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 16px;
+    width: 50%;
+    height: 80%;
+    margin-left: 85px;
+    margin-top: 20px;
+}
+
+.form-control:focus::placeholder {
+    opacity: 60%;
+}
