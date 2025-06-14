@@ -1,6 +1,6 @@
 import React from 'react'
 
-class middleSide extends React.Component {
+class MiddleSide extends React.Component {
     render() {
         return (
             <div className="middle">
@@ -93,4 +93,4 @@ class middleSide extends React.Component {
     }
 }
 
-export default middleSide
+export default MiddleSide

@@ -1,6 +1,6 @@
 import React from 'react';
 
-class leftSide extends React.Component {
+class LftSide extends React.Component {
     render() {
         return (
             <div className="sidebar">
@@ -11,7 +11,7 @@ class leftSide extends React.Component {
                     </button>
                     <button className="btn btn-light">
                         <i className="bi bi-people-fill sidebar-icons " ></i>
-                        Amigos
+                        <a href={'/friends.html'}>Amigos</a>
                     </button>
                     <button className="btn btn-light">
                         <i className="bi bi-clock sidebar-icons"></i>
@@ -60,4 +60,4 @@ class leftSide extends React.Component {
     }
 }
 
-export default leftSide
+export default LftSide
