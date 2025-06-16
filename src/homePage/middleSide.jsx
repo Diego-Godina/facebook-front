@@ -1,6 +1,50 @@
-import React from 'react'
+import React, {StrictMode} from 'react'
+import LeftSide from "../friendsPage/leftSide.jsx";
+import RightSide from "../friendsPage/rightSide.jsx";
+import LikesFeat from "./features/likesFeat.jsx";
 
 class MiddleSide extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            posts: [],
+            likedPosts: {}
+        }
+    }
+
+    componentDidMount() {
+        fetch('http://localhost:3000/posts/users/1')
+            .then(res => res.json())
+            .then(data => {
+                this.setState({posts: data});
+            })
+            .catch(err => console.log('Erro: ' + err));
+    }
+
+    handleLikeClick = (postId) => {
+        const liked = this.state.likedPosts[postId];
+
+        if (liked) {
+            fetch(`http://localhost:3000/likes/1/post/`+postId, {
+                method: 'DELETE'
+            }).then(() => {
+                this.setState(prevState => ({
+                    likedPosts: { ...prevState.likedPosts, [postId]: false }
+                }));
+            }).catch(err => console.log("Erro ao remover like:", err));
+        } else {
+            fetch(`http://localhost:3000/likes/posts/`+postId+`/likes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: 1, postId })
+            }).then(() => {
+                this.setState(prevState => ({
+                    likedPosts: { ...prevState.likedPosts, [postId]: true }
+                }));
+            }).catch(err => console.log("Erro ao dar like:", err));
+        }
+    };
+
     render() {
         return (
             <div className="middle">
@@ -29,65 +73,66 @@ class MiddleSide extends React.Component {
                     </ul>
                 </div>
 
-                <div className="post">
-                    <button className="btn btn-story">
-                        <i className="bi bi-plus story-icon"></i>
-                        <div className="text-content d-flex justify-content-between">
-                            <h6>Criar história</h6>
-                            <p>Partilha uma foto ou escreve algo</p>
-                        </div>
+                {this.state.posts.length === 0 && (
+                    <div className="post">
+                        <button className="btn btn-story">
+                            <i className="bi bi-plus story-icon"></i>
+                            <div className="text-content d-flex justify-content-between">
+                                <h6>Criar história</h6>
+                                <p>Partilha uma foto ou escreve algo</p>
+                            </div>
+                        </button>
+                    </div>
+                )}
 
-                    </button>
-                </div>
+                {this.state.posts.map((post, index) => (
+                    <div className="post">
+                        <div className="pub-container">
+                            <img src="imagens2/benfica.jpg" className="pub-profile" />
 
-                <div className="post">
-                    <div className="pub-container">
-                        <img src="imagens2/benfica.jpg" className="pub-profile" />
-
-                        <div className="pub-text">
+                            <div className="pub-text">
                         <span className="pub-title">
-                          Sport Lisboa e Benfica
+                          Benfica
                           <i className="bi bi-patch-check-fill text-primary custom-icon"></i>
                         </span>
-                            <p className="pub-time">1 d •</p>
+                                <p className="pub-time">1 d •</p>
+                            </div>
+                        </div>
+
+                        <div className="pub-above-img">
+                            <span>{post.content}</span>
+                        </div>
+
+                        <div>
+                            <ul className="list-group list-group-flush">
+                                <li className="list-group-item d-flex align-items-center">
+                                    <StrictMode>
+                                        <LikesFeat postId={post.post_id}/>
+                                    </StrictMode>
+                                    <span className="pub-comentario">1,5 mil comentários  3,4 mil partilhas</span>
+                                </li>
+
+                                <li className="list-group-item d-flex align-items-center">
+                                    <div className="d-flex w-100 justify-content-between ">
+                                        <button className="btn btn-pub w-100" onClick={() => this.handleLikeClick(post.post_id)}>
+                                            <i className={`bi ${this.state.likedPosts[post.post_id] ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'} post-icon`}></i>
+                                            Gosto
+                                        </button>
+                                        <button className="btn btn-pub w-100">
+                                            <i className="bi bi-chat post-icon"></i>
+                                            Comentar
+                                        </button>
+                                        <button className="btn btn-pub w-100">
+                                            <i className="bi bi-arrow-90deg-right post-icon"></i>
+                                            Partilhar
+                                        </button>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
                     </div>
+                ))}
 
-                    <div className="pub-above-img">
-                        <span>🔴⚪ Os 𝟑 𝐩𝐨𝐧𝐭𝐨𝐬 no clássico são 𝐍𝐎𝐒𝐒𝐎𝐒! ❤‍🔥</span>
-                        <p className="pub-hashtag">#FCPSLB • #LigaPortugalBetclic • #Emirates</p>
-                    </div>
-
-                    <div className="pub-pic">
-                        <img src="imagens2/4-1.jpg" />
-                    </div>
-
-                    <div>
-                        <ul className="list-group list-group-flush">
-                            <li className="list-group-item d-flex align-items-center">
-                                <span className="pub-comentario2">17 mil</span>
-                                <span className="pub-comentario">1,5 mil comentários  3,4 mil partilhas</span>
-                            </li>
-
-                            <li className="list-group-item d-flex align-items-center">
-                                <div className="d-flex w-100 justify-content-between ">
-                                    <button className="btn btn-pub w-100">
-                                        <i className="bi bi-hand-thumbs-up post-icon"></i>
-                                        Gosto
-                                    </button>
-                                    <button className="btn btn-pub w-100">
-                                        <i className="bi bi-chat post-icon"></i>
-                                        Comentar
-                                    </button>
-                                    <button className="btn btn-pub w-100">
-                                        <i className="bi bi-arrow-90deg-right post-icon"></i>
-                                        Partilhar
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         )
     }
