@@ -2,6 +2,7 @@ import React, {StrictMode} from 'react'
 import LeftSide from "../friendsPage/leftSide.jsx";
 import RightSide from "../friendsPage/rightSide.jsx";
 import LikesFeat from "./features/likesFeat.jsx";
+import CommentsFeat from "./features/commentsFeat.jsx";
 
 class MiddleSide extends React.Component {
     constructor(props) {
@@ -109,7 +110,12 @@ class MiddleSide extends React.Component {
                                     <StrictMode>
                                         <LikesFeat postId={post.post_id}/>
                                     </StrictMode>
-                                    <span className="pub-comentario">1,5 mil comentários  3,4 mil partilhas</span>
+                                    <span className="pub-comentario">
+                                        <StrictMode>
+                                            <CommentsFeat postId={post.post_id}/>
+                                        </StrictMode>
+                                        &nbsp;comentários  3,4 mil partilhas
+                                    </span>
                                 </li>
 
                                 <li className="list-group-item d-flex align-items-center">
@@ -132,7 +138,6 @@ class MiddleSide extends React.Component {
                         </div>
                     </div>
                 ))}
-
             </div>
         )
     }
