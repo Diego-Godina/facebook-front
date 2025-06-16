@@ -14,6 +14,8 @@ class MiddleSide extends React.Component {
     }
 
     componentDidMount() {
+        const token = localStorage.getItem('token');
+
         fetch('http://localhost:3000/posts/users/1')
             .then(res => res.json())
             .then(data => {
@@ -23,11 +25,17 @@ class MiddleSide extends React.Component {
     }
 
     handleLikeClick = (postId) => {
+        const token = localStorage.getItem('token');
         const liked = this.state.likedPosts[postId];
+
+        if (!token) {
+            alert('Você precisa estar autenticado para curtir posts.');
+            return;
+        }
 
         if (liked) {
             fetch(`http://localhost:3000/likes/1/post/`+postId, {
-                method: 'DELETE'
+                method: 'DELETE',
             }).then(() => {
                 this.setState(prevState => ({
                     likedPosts: { ...prevState.likedPosts, [postId]: false }
@@ -36,8 +44,14 @@ class MiddleSide extends React.Component {
         } else {
             fetch(`http://localhost:3000/likes/posts/`+postId+`/likes`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: 1, postId })
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ like_type: 'like' })
+            }).then(res => {
+                if (!res.ok) throw new Error('Erro ao curtir');
+                return res.json();
             }).then(() => {
                 this.setState(prevState => ({
                     likedPosts: { ...prevState.likedPosts, [postId]: true }
