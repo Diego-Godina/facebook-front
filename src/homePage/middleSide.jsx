@@ -1,8 +1,7 @@
 import React, {StrictMode} from 'react'
-import LeftSide from "../friendsPage/leftSide.jsx";
-import RightSide from "../friendsPage/rightSide.jsx";
-import LikesFeat from "./features/likesFeat.jsx";
-import CommentsFeat from "./features/commentsFeat.jsx";
+import { jwtDecode } from "jwt-decode";
+import LikesFeat from "./features/likesFeat.jsx"
+import CommentsFeat from "./features/commentsFeat.jsx"
 
 class MiddleSide extends React.Component {
     constructor(props) {
@@ -16,12 +15,29 @@ class MiddleSide extends React.Component {
     componentDidMount() {
         const token = localStorage.getItem('token');
 
-        fetch('http://localhost:3000/posts/users/1')
-            .then(res => res.json())
-            .then(data => {
-                this.setState({posts: data});
-            })
-            .catch(err => console.log('Erro: ' + err));
+        if(!token) {
+            console.error("Token não encontrado");
+            return;
+        }
+
+        try {
+            const decoded = jwtDecode(token);
+            const userId = decoded.userId;
+
+            if (!userId) {
+                console.error('ID do usuário não encontrado no token decodificado.');
+                return;
+            }
+
+            fetch(`http://localhost:3000/posts/users/${userId}`)
+                .then(res => res.json())
+                .then(data => {
+                    this.setState({ posts: data });
+                })
+                .catch(err => console.log('Erro ao buscar posts: ' + err));
+        } catch (error) {
+            console.error('Erro ao decodificar o token:', error);
+        }
     }
 
     handleLikeClick = (postId) => {
@@ -60,15 +76,42 @@ class MiddleSide extends React.Component {
         }
     };
 
+    toogleComentario = (postId) => {
+        const caixa = document.querySelector(`.post-${postId} .caixa-comentario`);
+        if (caixa) {
+            caixa.classList.toggle("d-none");
+        }
+    }
+
     render() {
         return (
             <div className="middle">
                 <div className="post">
                     <ul className="list-group list-group-flush">
-                        <li className="list-group-item d-flex align-items-center ">
-                            <img src="imagens2/benfica.jpg" alt="Foto de perfil" className="post-pics"/>
-                            <div className="form-control d-flex align-items-center post-publish" role="button" >
-                                Em que estás a pensar?
+                        <li className="list-group-item d-flex align-items-center">
+                            <img src="imagens2/benfica.jpg" alt="Foto de perfil" className="post-pics me-3"/>
+
+                            <div className="flex-grow-1">
+                                <div className="d-flex align-items-center gap-3 mb-2">
+                                    <div className="form-check m-0">
+                                        <input className="form-check-input" type="radio" name="privacidade" id="publico"
+                                               value="publico" defaultChecked/>
+                                        <label className="form-check-label" htmlFor="publico">
+                                            <i className="bi bi-globe"></i> Público
+                                        </label>
+                                    </div>
+
+                                    <div className="form-check m-0">
+                                        <input className="form-check-input" type="radio" name="privacidade" id="amigos"
+                                               value="amigos"/>
+                                        <label className="form-check-label" htmlFor="amigos">
+                                            <i className="bi bi-people-fill"></i> Amigos
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <input type="text" className="form-control post-publish"
+                                       placeholder="Em que estás a pensar?"/>
                             </div>
                         </li>
 
@@ -81,7 +124,8 @@ class MiddleSide extends React.Component {
                                     <i className="bi bi-images post-icon post-icon-foto"></i>Foto/vídeo
                                 </button>
                                 <button className="btn btn-white w-100">
-                                    <i className="bi bi-emoji-smile-fill post-icon post-icon-smile"></i>A sentir-me/Atividade
+                                    <i className="bi bi-emoji-smile-fill post-icon post-icon-smile"></i>A
+                                    sentir-me/Atividade
                                 </button>
                             </div>
                         </li>
@@ -101,7 +145,7 @@ class MiddleSide extends React.Component {
                 )}
 
                 {this.state.posts.map((post, index) => (
-                    <div className="post">
+                    <div className={`post post-${post.post_id}`} key={post.post_id}>
                         <div className="pub-container">
                             <img src="imagens2/benfica.jpg" className="pub-profile" />
 
@@ -124,7 +168,7 @@ class MiddleSide extends React.Component {
                                     <StrictMode>
                                         <LikesFeat postId={post.post_id}/>
                                     </StrictMode>
-                                    <span className="pub-comentario">
+                                    <span className="pub-comentario" style={{'paddingLeft': '150px'}}>
                                         <StrictMode>
                                             <CommentsFeat postId={post.post_id}/>
                                         </StrictMode>
@@ -134,11 +178,12 @@ class MiddleSide extends React.Component {
 
                                 <li className="list-group-item d-flex align-items-center">
                                     <div className="d-flex w-100 justify-content-between ">
-                                        <button className="btn btn-pub w-100" onClick={() => this.handleLikeClick(post.post_id)}>
+                                        <button className="btn btn-pub w-100"
+                                                onClick={() => this.handleLikeClick(post.post_id)}>
                                             <i className={`bi ${this.state.likedPosts[post.post_id] ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'} post-icon`}></i>
                                             Gosto
                                         </button>
-                                        <button className="btn btn-pub w-100">
+                                        <button className="btn btn-pub w-100" onClick={() => this.toogleComentario(post.post_id)}>
                                             <i className="bi bi-chat post-icon"></i>
                                             Comentar
                                         </button>
@@ -149,6 +194,18 @@ class MiddleSide extends React.Component {
                                     </div>
                                 </li>
                             </ul>
+
+                            <div className="d-none mt-3 caixa-comentario">
+                                <div className="d-flex align-items-start">
+                                    <img src="imagens2/benfica.jpg" alt="Foto de perfil" className="rounded-circle me-2" style={{"width": "36px", "height": "36px", "objectFit": "cover"}}/>
+
+                                    <div className="flex-grow-1 d-flex">
+                                        <input type="text" className="form-control rounded-pill me-2"
+                                               placeholder="Escreve um comentário..."/>
+                                        <button className="btn btn-grey btn-sm rounded-pill">Publicar</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 ))}
